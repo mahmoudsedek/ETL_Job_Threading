@@ -46,10 +46,10 @@ All errors/exceptions should be logged there. In addition, there should be a ```
 ## Complete example of input/output files:
 
 
-    • input/metadata/applicant_employer.json (list of id/name lists)
+    • input/metadata/applicant_employer.json (list of [id,name] lists)
     [[1,"Uber"],[2,"Tesco"],[3,"ZipCar"],[4,"BlaBlaCar"],[5,"Deliveroo"]]
 
-    • input/metadata/applicant_nationality.json (list of id/name lists)
+    • input/metadata/applicant_nationality.json (list of [id,name] lists)
     [[1,"British"],[2,"Polish"],[3,"French"],[4,"Belgian"],[5,"Turkish"]]
 
     • input/checks/right_to_work/2017-07-26-05.csv
