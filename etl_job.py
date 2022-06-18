@@ -21,15 +21,15 @@ number_of_threads = 0
 number_of_threads_lock = threading.Lock()
 
 def get_argument() -> argparse.Namespace:
-    """method to get an argument of how many thread/process the user wants to have to execute the job"""
+    """Method to get an argument/parameter of how many thread/process the user wants to have to execute the job"""
     parser = argparse.ArgumentParser("ETL Job", add_help=False)
-    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help="this is ETL job, that takes 1 parameter -p which is the number of threads for the job")
-    parser.add_argument("-p", "--parallelism", default=3, help="parallelism parameter with default value of 3")
+    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help="this is an ETL job, that takes 1 parameter -p which is the number of threads for the job")
+    parser.add_argument("-p", "--parallelism", default=3, help="parallelism parameter with the default value of 3")
     args = parser.parse_args()
     return args
 
 def prepare_paths(logger: logging.RootLogger) -> tuple:
-    """method to prepare paths of the input & output files, after taking the paths the method tries to first
+    """Method to prepare paths of the input & output files, after taking the paths the method tries to first
     list all files if exist in the right_to_work directory then append files names into the identity list"""
     output_path = job_config.OUTPUT_PATH
     rtw_path = job_config.RTW_PATH
@@ -70,7 +70,7 @@ class ETL_thread(threading.Thread):
         
 
     def format_date(self, epoch: str) -> str:
-        """method to format the date as needed, iso8601 timestamp for a BST time zone"""
+        """Method to format the date as needed, iso8601 timestamp for a BST time zone"""
         time_stamp = pd.to_datetime(epoch, unit='s')
         time_stamp_bst = time_stamp.tz_localize("GMT").tz_convert("Europe/London")
         time_stamp_iso = time_stamp_bst.isoformat()
@@ -79,13 +79,13 @@ class ETL_thread(threading.Thread):
 
 
     def read_file(self, file_path: str) -> dict:
-        """method to read the metadata json files and dump it as a python dict"""
+        """Method to read the metadata json files and dump it as a python dict"""
         with open(file_path, 'r') as file:
             return json.load(file)
 
 
     def write_file(self, file_path: str, data_list: list) -> None:
-        """method to write/dump the output files as json"""
+        """Method to write/dump the output files as json"""
         with open(file_path, 'w') as file:
             for item in data_list:
                 json.dump(item, file)
@@ -93,21 +93,21 @@ class ETL_thread(threading.Thread):
 
 
     def move_file(self, src_path: str, dst_path: str) -> None:
-        """method to move the files in case of success(archive) or failure(error) each to a corresponding directory"""
+        """Method to move the files in case of success(archive) or failure(error) each to a corresponding directory"""
         shutil.move(src_path, dst_path)
 
 
     def process(self) -> bool:
-        """the actual magic happens here, since"""
+        """The actual magic happens here"""
         try:
             try:
                 # read static files
                 nationality_list = self.read_file(self.nationality_path)
                 employer_list = self.read_file(self.employer_path)
             except FileNotFoundError as e:
-                self.logger.error("metadate path doesn't exist")
+                self.logger.error("Metadate path doesn't exist...")
                 self.logger.error(e, exc_info=True)
-                self.logger.error(f"processing file {self.rtw_file_path} failed due to the absence of one of the following files {self.nationality_path}, {self.employer_path}")
+                self.logger.error(f"Processing file {self.rtw_file_path} failed due to the absence of one of the following files {self.nationality_path}, {self.employer_path}")
                 return False
             
             df_nationality = pd.DataFrame(nationality_list, columns = ["applicant_nationality", "applicant_nationality_name"])
@@ -118,9 +118,9 @@ class ETL_thread(threading.Thread):
                 df_rtw = pd.read_csv(self.rtw_file_path, header=0)
                 df_identity = pd.read_csv(self.identity_file_path, header=0)
             except FileNotFoundError as e:
-                self.logger.error(f"corresponding identity file to the right_to_work file named {self.rtw_file_path} doesn't not exist")
+                self.logger.error(f"Corresponding identity file to the right_to_work file named {self.rtw_file_path} doesn't not exist...")
                 self.logger.error(e, exc_info=True)
-                self.logger.error(f"processing file {self.rtw_file_path} failed due to the absence of the corresponding identity file")
+                self.logger.error(f"Processing file {self.rtw_file_path} failed due to the absence of the corresponding identity file...")
                 return False
 
             
@@ -144,6 +144,7 @@ class ETL_thread(threading.Thread):
             df["unix_timestamp"] = df["unix_timestamp"].apply(self.format_date)
             df = df.rename(columns={"unix_timestamp": "iso8601_timestamp"})
             df["applicant_id"] = df["applicant_id"].astype(str)
+            df["is_verified"] = df["is_verified"].astype(bool)
 
             # convert dataframe to json with removing nulls
             json_string = df.apply(lambda x: [x.dropna()], axis=1).to_json()
@@ -160,13 +161,13 @@ class ETL_thread(threading.Thread):
             self.write_file(output_file_path, data_list)
             return True
         except Exception as e:
-            self.logger.error(f"file {self.rtw_file_path} failed while processing, check the following Traceback")
+            self.logger.error(f"file {self.rtw_file_path} failed while processing, check the following Traceback...")
             self.logger.error(e, exc_info=True)
             return False
 
 
     def run(self) -> None:
-        """the runnable method to run the thread"""
+        """Runnable method to run the thread"""
         global number_of_threads, number_of_threads_lock
         rtw_file = ntpath.basename(self.rtw_file_path)
         output_file_name = rtw_file.split(".")[0]
@@ -183,7 +184,7 @@ class ETL_thread(threading.Thread):
                 self.move_file(self.rtw_file_path, (join(self.archive_path, rtw_dir, rtw_file)))
                 self.move_file(self.identity_file_path, (join(self.archive_path, identity_dir, rtw_file)))
             except FileNotFoundError as e:
-                self.logger.error(f"couldn't move the file to the archive directory check the following Traceback to recognize which file")
+                self.logger.error("Couldn't move the file to the archive directory check the following Traceback to recognize which file...")
                 self.logger.error(e, exc_info=True)
                 
 
@@ -202,7 +203,7 @@ class ETL_thread(threading.Thread):
                 self.move_file(self.rtw_file_path, (join(self.error_path, rtw_dir, rtw_file)))
                 self.move_file(self.identity_file_path, (join(self.error_path, identity_dir, rtw_file)))
             except FileNotFoundError as e:
-                self.logger.error(f"couldn't move the file to the error directory check the following Traceback to recognize which file")
+                self.logger.error("Couldn't move the file to the error directory check the following Traceback to recognize which file...")
                 self.logger.error(e, exc_info=True)
             
             number_of_threads_lock.acquire()
@@ -251,18 +252,11 @@ def main() -> None:
             thread.join()
     
     else:
-        logger.warning("there are no files to be processed")
+        logger.warning("There are no files to be processed...")
 
-    print("Exit")
+    print("Exit...")
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
 
