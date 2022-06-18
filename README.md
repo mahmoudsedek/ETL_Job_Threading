@@ -84,3 +84,17 @@ All errors/exceptions should be logged there. In addition, there should be a ```
     elapsed time: 1s.
     [2017-07-27 13:51:48,491] - INFO - From Thread-2 - Hour 2017-07-26-06 ETL complete,
     elapsed time: 1s.
+    
+    • ./archive   >>>It'll get created in case of success
+    ```
+    archive
+      |	right_to_work
+      ||	2017-07-26-05.csv
+      ||	2017-07-26-06.csv
+      ||	...
+      |
+      |	identity
+      ||	2017-07-26-05.csv
+      ||	2017-07-26-06.csv
+      ||	...
+    ```
