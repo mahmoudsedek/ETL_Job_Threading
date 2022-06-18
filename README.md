@@ -24,11 +24,11 @@ The **input** directory is structured as follows (assume local UNIX file system)
 ```
 Chunks of input data are represented by files from 'input/checks/right_to_work'and'input/checks/identity'.Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have granularity of one hour.
 
-Records from'input/checks/right_to_work'files are comma-separated in the following format:
+Records from 'input/checks/right_to_work' files are comma-separated in the following format:
     
     unix_timestamp,applicant_id,applicant_employer,applicant_nationality,is_eligble
 
-Records from'input/checks/identity'have the following format:
+Records from 'input/checks/identity' files are comma-separated in the following format:
 
     unix_timestamp,applicant_id,is_verified
 
@@ -46,10 +46,10 @@ All errors/exceptions should be logged there. In addition, there should be a ```
 ## Complete example of input/output files:
 
 
-    • input/metadata/applicant_employer.json (list of id/nametuples)
+    • input/metadata/applicant_employer.json (list of id/name lists)
     [[1,"Uber"],[2,"Tesco"],[3,"ZipCar"],[4,"BlaBlaCar"],[5,"Deliveroo"]]
 
-    • input/metadata/applicant_nationality.json (list of id/nametuples)
+    • input/metadata/applicant_nationality.json (list of id/name lists)
     [[1,"British"],[2,"Polish"],[3,"French"],[4,"Belgian"],[5,"Turkish"]]
 
     • input/checks/right_to_work/2017-07-26-05.csv
