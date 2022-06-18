@@ -1,3 +1,4 @@
+from numpy import dtype
 import job_config
 import threading
 import argparse
@@ -15,49 +16,14 @@ from pathlib import Path
 
 
 
-
 threads = []
 number_of_threads = 0
 number_of_threads_lock = threading.Lock()
 
-def get_argument() -> argparse.Namespace:
-    """Method to get an argument/parameter of how many thread/process the user wants to have to execute the job"""
-    parser = argparse.ArgumentParser("ETL Job", add_help=False)
-    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help="this is an ETL job, that takes 1 parameter -p which is the number of threads for the job")
-    parser.add_argument("-p", "--parallelism", default=3, help="parallelism parameter with the default value of 3")
-    args = parser.parse_args()
-    return args
-
-def prepare_paths(logger: logging.RootLogger) -> tuple:
-    """Method to prepare paths of the input & output files, after taking the paths the method tries to first
-    list all files if exist in the right_to_work directory then append files names into the identity list"""
-    output_path = job_config.OUTPUT_PATH
-    rtw_path = job_config.RTW_PATH
-    identity_path =job_config.IDENTITY_PATH
-    nationality_path = job_config.NATIONALITY_PATH
-    employer_path = job_config.EMPLOYER_PATH
-    archive_path = job_config.ARCHIVE_PATH
-    error_path = job_config.ERROE_PATH
-
-    try:
-        rtw_files_path = [join(rtw_path, f) for f in listdir(rtw_path) if isfile(join(rtw_path, f))]
-    except FileNotFoundError as e:
-        logging.error("input path doesn't exist")
-        logging.error(e, exc_info=True)
-        logging.error("job will terminate...")
-        sys.exit(0)
-
-    identity_files_path = []
-    for rtw_file_path in rtw_files_path:
-        rtw_file = ntpath.basename(rtw_file_path)
-        identity_files_path.append(join(identity_path, rtw_file))
-    return (rtw_files_path, identity_files_path, nationality_path, employer_path, output_path, archive_path, error_path)
-
-
 class ETL_thread(threading.Thread):
-    """This class have the thread initialization and handling"""
+    """This class has the thread initialization and handling"""
     def __init__(self, logger: logging.RootLogger, rtw_file_path: str, identity_file_path: str, nationality_path: str, employer_path: str, output_path: str, archive_path: str, error_path: str) -> None:
-        """Constructor takes the above parameters to be passed with the thread"""
+        """Initialize the constructor parameters"""
         super().__init__()
         self.logger = logger
         self.rtw_file_path = rtw_file_path
@@ -70,7 +36,7 @@ class ETL_thread(threading.Thread):
         
 
     def format_date(self, epoch: str) -> str:
-        """Method to format the date as needed, iso8601 timestamp for a BST time zone"""
+        """Method to format the date as needed, iso8601 timestamp with a BST time zone"""
         time_stamp = pd.to_datetime(epoch, unit='s')
         time_stamp_bst = time_stamp.tz_localize("GMT").tz_convert("Europe/London")
         time_stamp_iso = time_stamp_bst.isoformat()
@@ -79,7 +45,7 @@ class ETL_thread(threading.Thread):
 
 
     def read_file(self, file_path: str) -> dict:
-        """Method to read the metadata json files and dump it as a python dict"""
+        """Method to read the metadata json files and load it as a python dict"""
         with open(file_path, 'r') as file:
             return json.load(file)
 
@@ -93,12 +59,12 @@ class ETL_thread(threading.Thread):
 
 
     def move_file(self, src_path: str, dst_path: str) -> None:
-        """Method to move the files in case of success(archive) or failure(error) each to a corresponding directory"""
+        """Method to move the files from the source path to the destination one"""
         shutil.move(src_path, dst_path)
 
 
     def process(self) -> bool:
-        """The actual magic happens here"""
+        """The actual magic happens here, and it's called by the run method"""
         try:
             try:
                 # read static files
@@ -144,7 +110,6 @@ class ETL_thread(threading.Thread):
             df["unix_timestamp"] = df["unix_timestamp"].apply(self.format_date)
             df = df.rename(columns={"unix_timestamp": "iso8601_timestamp"})
             df["applicant_id"] = df["applicant_id"].astype(str)
-            df["is_verified"] = df["is_verified"].astype(bool)
 
             # convert dataframe to json with removing nulls
             json_string = df.apply(lambda x: [x.dropna()], axis=1).to_json()
@@ -174,8 +139,8 @@ class ETL_thread(threading.Thread):
         self.logger.info("Hour " + output_file_name + " ETL start.")
         start_time = time.time()
         process_status = self.process()
-        if(process_status == True): # processing done successfully
-            # move files to the archive directory
+        if(process_status == True): # processing is done successfully
+            # move file to the archive directory
             rtw_dir = split(split(self.rtw_file_path)[0])[1]
             identity_dir = split(split(self.identity_file_path)[0])[1]
             makedirs(join(self.archive_path, rtw_dir), exist_ok=True)
@@ -193,8 +158,8 @@ class ETL_thread(threading.Thread):
             number_of_threads_lock.acquire()
             number_of_threads = number_of_threads - 1
             number_of_threads_lock.release()
-        else:
-            # move files to the error directory
+        else: # Processing has failed
+            # move file to the error directory
             rtw_dir = split(split(self.rtw_file_path)[0])[1]
             identity_dir = split(split(self.identity_file_path)[0])[1]
             makedirs(join(self.error_path, rtw_dir), exist_ok=True)
@@ -210,6 +175,44 @@ class ETL_thread(threading.Thread):
             number_of_threads = number_of_threads - 1
             number_of_threads_lock.release()
         
+
+def prepare_paths(logger: logging.RootLogger) -> tuple:
+    """Method to prepare paths of the input & output files, after taking the paths the method tries to first
+    list all files if exist in the right_to_work directory then append files names into the identity list,
+    since it's one-to-one mapping (one file right_to_work >> one file in identity with the same name"""
+    output_path = job_config.OUTPUT_PATH
+    rtw_path = job_config.RTW_PATH
+    identity_path =job_config.IDENTITY_PATH
+    nationality_path = job_config.NATIONALITY_PATH
+    employer_path = job_config.EMPLOYER_PATH
+    archive_path = job_config.ARCHIVE_PATH
+    error_path = job_config.ERROE_PATH
+
+    try:
+        rtw_files_path = [join(rtw_path, f) for f in listdir(rtw_path) if isfile(join(rtw_path, f))]
+    except FileNotFoundError as e:
+        logger.error("input path doesn't exist")
+        logger.error(e, exc_info=True)
+        logger.error("job will terminate...")
+        sys.exit(0)
+
+    identity_files_path = []
+    for rtw_file_path in rtw_files_path:
+        rtw_file = ntpath.basename(rtw_file_path)
+        identity_files_path.append(join(identity_path, rtw_file))
+    return (rtw_files_path, identity_files_path, nationality_path, employer_path, output_path, archive_path, error_path)
+
+
+def get_argument() -> argparse.Namespace:
+    """Method to get an argument of how many threads the user wants to have to execute the job"""
+    parser = argparse.ArgumentParser("ETL Job", add_help=False)
+    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help="""
+        This is an ETL job, that takes 1 parameter -p which is the number of threads for the job
+        meaning one thread per hour/chunk (example: one thread for 2017-07-26-05 files)""")
+    parser.add_argument("-p", "--parallelism", default=3, help="Parallelism parameter with the default value of 3")
+    args = parser.parse_args()
+    return args
+
 
 def main() -> None:
     global number_of_threads, number_of_threads_lock, threads
@@ -259,4 +262,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
