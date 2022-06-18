@@ -219,7 +219,7 @@ def main() -> None:
     # configure logger
     path = Path(job_config.LOG_PATH)
     makedirs(path.parent.absolute(), exist_ok=True)
-    logging.basicConfig(filename=job_config.LOG_PATH, format='[%(asctime)s] - %(levelname)s - From %(threadName)s - %(message)s', filemode='w')
+    logging.basicConfig(filename=job_config.LOG_PATH, format='[%(asctime)s] - %(levelname)s - From %(threadName)s - %(message)s', filemode='a')
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
