@@ -1,7 +1,7 @@
 # ETL_Job_Threading
 ETL job using native python and Pandas in a threading way
 
-This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL and produces chunks of the **successful** processed data to  a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it get moved to the ```error``` directory.
+This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it get moved to the ```error``` directory.
 The degree of parallelism is given on the command line as an option to the ```program (-p)``` and the default is set to 3.
 
 The **input** directory is structured as follows (assume local UNIX file system): 
@@ -22,7 +22,8 @@ The **input** directory is structured as follows (assume local UNIX file system)
    ||	2017-07-26-06.csv
    ||	...
 ```
-Chunks of input data are represented by files from 'input/checks/right_to_work'and'input/checks/identity'.Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have granularity of one hour.
+Chunks of input data are represented by files from 'input/checks/right_to_work'and'input/checks/identity'.
+Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have granularity of one hour.
 
 Records from 'input/checks/right_to_work' files are comma-separated in the following format:
     
@@ -37,6 +38,8 @@ The program will merge **right_to_work** and **identity** checks records with th
     {"iso8601_timestamp":string,"applicant_id":string,"applicant_employer":string,"applicant_nationality":s tring,"is_eligble":bool,"is_verified":bool}
 
 Where the timestamp will be in ISO-8601 format (BST time zone) of the record in the 'right_to_work' files, and the applicant_employer and applicant_nationality fields will be the string representation found from the input metadata lookup files.
+
+The program can safely handle the absence of any of the input files and log the error in the ```etl.log``` file.
 
 A complete example of input and output files follows these instructions at the end.
 

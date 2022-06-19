@@ -1,4 +1,3 @@
-from numpy import dtype
 import job_config
 import threading
 import argparse
