@@ -47,8 +47,9 @@ A separate **logs** dir will contain processing log files from program execution
 All errors/exceptions should be logged there. In addition, there should be a ```log line``` for **every input hour** read indicating start of processing, and ```another log line``` for that input hour when processing completes, which includes **elapsed time** to process that hour.
 
 ## Instructions before running:
->>> if you're going to run using the shell scripts make sure your CWD is inside the ```shell_scripts``` directory
->>> if you're going to run the ```etl_job.py``` using the terminal you can either use:
+1.  if you're going to run using the shell scripts make sure your CWD is inside the
+```shell_scripts``` directory
+2. if you're going to run the ```etl_job.py``` using the terminal you can either use:
     a) python etl_job.py        and it'll use the default thread value as 3
     b) python etl_job.py -p 2   and in this case it'll change the threads number to 2 by max
 
