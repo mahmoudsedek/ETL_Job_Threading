@@ -50,8 +50,8 @@ All errors/exceptions should be logged there. In addition, there should be a ```
 1.  if you're going to run using the shell scripts make sure your CWD is inside the
 ```shell_scripts``` directory
 2. if you're going to run the ```etl_job.py``` using the terminal you can either use:
-    a) python etl_job.py        and it'll use the default thread value as 3
-    b) python etl_job.py -p 2   and in this case it'll change the threads number to 2 by max
+    a. python etl_job.py        and it'll use the default thread value as 3
+    b. python etl_job.py -p 2   and in this case it'll change the threads number to 2 by max
 
 That's it, no dependencies needed or anything else, just a normal terminal and enjoy :)
 
