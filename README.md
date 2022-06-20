@@ -1,5 +1,5 @@
 # ETL_Job_Threading
-ETL job using native python and Pandas in a threading way
+ETL job using native python and Pandas in a Multithreading way
 
 This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it get moved to the ```error``` directory. <br />
 The degree of parallelism is given on the command line as an option to the ```program (-p)``` and the default is set to 3.
@@ -49,7 +49,7 @@ All errors/exceptions should be logged there. In addition, there should be a ```
 ## Instructions before running:
 1.  if you're going to run using the shell scripts make sure your CWD is inside the
 ```shell_scripts``` directory
-2. if you're going to run the ```etl_job.py``` using the terminal you can either use:
+2. if you're going to run the ```etl_job.py``` using the terminal you can either use:<br />
     a) ```python etl_job.py``` and it'll use the default thread value as 3 <br />
     b) ```python etl_job.py -p 2``` in this case it'll change the threads number to 2 by max <br />
 
