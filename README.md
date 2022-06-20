@@ -39,15 +39,23 @@ The program will merge **right_to_work** and **identity** checks records with th
 
 Where the timestamp will be in ISO-8601 format (BST time zone) of the record in the 'right_to_work' files, and the applicant_employer and applicant_nationality fields will be the string representation found from the input metadata lookup files.
 
-The program can safely handle the absence of any of the input files and log the error in the ```etl.log``` file.
+>>>The program can safely handle the absence of any of the input files and log the error in the ```etl.log``` file.
 
 A complete example of input and output files follows these instructions at the end.
 
 A separate **logs** dir will contain processing log files from program execution.
 All errors/exceptions should be logged there. In addition, there should be a ```log line``` for **every input hour** read indicating start of processing, and ```another log line``` for that input hour when processing completes, which includes **elapsed time** to process that hour.
 
-## Complete example of input/output files:
+## Instructions before running:
+>>> if you're going to run using the shell scripts make sure your CWD is inside the ```shell_scripts``` directory
+>>> if you're going to run the ```etl_job.py``` using the terminal you can either use:
+    a) python etl_job.py        and it'll use the default thread value as 3
+    b) python etl_job.py -p 2   and in this case it'll change the threads number to 2 by max
 
+That's it, no dependencies needed or anything else, just a normal terminal and enjoy :)
+
+
+### Complete example of input/output files:
 
     • input/metadata/applicant_employer.json (list of [id,name] lists)
     [[1,"Uber"],[2,"Tesco"],[3,"ZipCar"],[4,"BlaBlaCar"],[5,"Deliveroo"]]
