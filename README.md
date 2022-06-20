@@ -1,10 +1,10 @@
 # ETL_Job_Threading
 ETL job using native python and Pandas in a Multithreading way
 
-This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it get moved to the ```error``` directory. <br />
+This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL, and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it gets moved to the ```error``` directory. <br />
 The degree of parallelism is given on the command line as an option to the ```program (-p)``` and the default is set to 3.
 
-The **input** directory is structured as follows (assume local UNIX file system): 
+The **input** directory is structured as follows (assume the local UNIX file system): 
 ```
  input
    |	metadata
@@ -23,7 +23,7 @@ The **input** directory is structured as follows (assume local UNIX file system)
    ||	...
 ```
 Chunks of input data are represented by files from 'input/checks/right_to_work'and'input/checks/identity'.
-Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have granularity of one hour.
+Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have **granularity of one hour**.
 
 Records from 'input/checks/right_to_work' files are comma-separated in the following format:
     
@@ -33,18 +33,18 @@ Records from 'input/checks/identity' files are comma-separated in the following 
 
     unix_timestamp,applicant_id,is_verified
 
-The program will merge **right_to_work** and **identity** checks records with the same applicant_id within the same hour and produce a file to ```output``` for **each input hour** with the following format (JSON):
+The program will merge **right_to_work**, and **identity**, then checks the records with the same applicant_id within the same hour and produce a file to ```output``` for **each input hour** with the following format (JSON):
 
     {"iso8601_timestamp":string,"applicant_id":string,"applicant_employer":string,"applicant_nationality":s tring,"is_eligble":bool,"is_verified":bool}
 
-Where the timestamp will be in ISO-8601 format (BST time zone) of the record in the 'right_to_work' files, and the applicant_employer and applicant_nationality fields will be the string representation found from the input metadata lookup files.
+Where the timestamp will be in ISO-8601 format (BST time zone) of the record in the 'right_to_work' files, the applicant_employer and applicant_nationality fields will be the string representation found from the input metadata lookup files.
 
 >>>The program can safely handle the absence of any of the input files and log the error in the ```etl.log``` file.
 
 A complete example of input and output files follows these instructions at the end.
 
 A separate **logs** dir will contain processing log files from program execution.
-All errors/exceptions should be logged there. In addition, there should be a ```log line``` for **every input hour** read indicating start of processing, and ```another log line``` for that input hour when processing completes, which includes **elapsed time** to process that hour.
+All errors/exceptions should be logged there. In addition, there should be a ```log line``` for **every input hour** read indicating the start of processing, and ```another log line``` for that input hour when processing completes, which includes **elapsed time** to process that hour.
 
 ## Instructions before running:
 1.  if you're going to run using the shell scripts make sure your CWD is inside the
@@ -53,8 +53,12 @@ All errors/exceptions should be logged there. In addition, there should be a ```
     a) ```python etl_job.py``` and it'll use the default thread value as 3 <br />
     b) ```python etl_job.py -p 2``` in this case it'll change the threads number to 2 by max <br />
 
-That's it, no dependencies needed or anything else, just a normal terminal and enjoy :)
-
+That's it, no dependencies needed or anything else, just a normal terminal and enjoy :) <br />
+but just to mention what versions/libraries that i used: <br />
+    a) Python 3.6.5 <br />
+    b) Pandas 1.1.5 <br />
+Anyway, the job was tested with different versions (Python 3.7.9 & Pandas 1.3.1) and it was working just fine.
+ 
 
 ### Complete example of input/output files:
 
