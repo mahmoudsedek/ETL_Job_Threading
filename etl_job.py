@@ -208,7 +208,7 @@ def get_argument() -> argparse.Namespace:
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help="""
         This is an ETL job, that takes 1 parameter -p which is the number of threads for the job
         meaning one thread per hour/chunk (example: one thread for 2017-07-26-05 files)""")
-    parser.add_argument("-p", "--parallelism", default=3, help="Parallelism parameter with the default value of 3")
+    parser.add_argument("-p", "--parallelism", default=3, type=int, help="Parallelism parameter with the default value of 3")
     args = parser.parse_args()
     return args
 
@@ -217,7 +217,7 @@ def main() -> None:
     global number_of_threads, number_of_threads_lock, threads
     
     args = get_argument()
-    max_threads = int(args.parallelism)
+    max_threads = args.parallelism
     print(type(max_threads))
 
     # configure logger
