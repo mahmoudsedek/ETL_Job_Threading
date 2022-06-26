@@ -217,7 +217,8 @@ def main() -> None:
     global number_of_threads, number_of_threads_lock, threads
     
     args = get_argument()
-    max_threads = args.parallelism
+    max_threads = int(args.parallelism)
+    print(type(max_threads))
 
     # configure logger
     path = Path(job_config.LOG_PATH)

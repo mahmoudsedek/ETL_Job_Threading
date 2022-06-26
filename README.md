@@ -1,7 +1,7 @@
 # ETL_Job_Threading
 ETL job using native python and Pandas in a Multithreading way
 
-This ETL job works in a smart way where each thread/worker simultaneously grabs chunks of data from a directory named ```input```, performs ETL, and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it gets moved to the ```error``` directory. <br />
+This ETL job works in a smart way where each thread/worker simultaneously grabs a chunk of data/files from a directory named ```input```, performs ETL, and produces chunks of the **successful** processed data to a directory named ```output``` and also to the ```archive``` directory, and in case of **failure** it gets moved to the ```error``` directory. <br />
 The degree of parallelism is given on the command line as an option to the ```program (-p)``` and the default is set to 3.
 
 The **input** directory is structured as follows (assume the local UNIX file system): 
