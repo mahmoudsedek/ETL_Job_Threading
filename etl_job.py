@@ -218,7 +218,6 @@ def main() -> None:
     
     args = get_argument()
     max_threads = args.parallelism
-    print(type(max_threads))
 
     # configure logger
     path = Path(job_config.LOG_PATH)
