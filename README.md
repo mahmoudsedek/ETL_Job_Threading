@@ -22,7 +22,7 @@ The **input** directory is structured as follows (assume the local UNIX file sys
    ||	2017-07-26-06.csv
    ||	...
 ```
-Chunks of input data are represented by files from 'input/checks/right_to_work'and'input/checks/identity'.
+Chunks of input data are represented by files from 'input/checks/right_to_work' and 'input/checks/identity'.
 Each chunk is a file from each directory that has the same timestamp as part of the file name (in BST time zone), which will have **granularity of one hour**.
 
 Records from 'input/checks/right_to_work' files are comma-separated in the following format:
